@@ -1,2 +1,8 @@
 
-app/build/outputs/apk/debug/app-debug.apk
+**/app-debug.apk
+**/.idea
+**/.settings
+**/.gradle
+**/.vscode
+**/app/build
+**/.DS_Store
