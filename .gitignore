@@ -6,3 +6,5 @@
 **/.vscode
 **/app/build
 **/.DS_Store
+**/build
+**/local.properties
