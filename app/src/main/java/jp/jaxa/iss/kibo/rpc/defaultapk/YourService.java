@@ -32,102 +32,87 @@ import gov.nasa.arc.astrobee.types.Quaternion;
  */
 
 public class YourService extends KiboRpcService {
-    final int LOOP_MAX = 50;
-    int qrloopCounter = 0;
-    int arloopCounter = 0;
-    String p_raw = null;
-    String x_raw = null;
-    String y_raw = null;
-    String z_raw = null;
-    String qrcheck = null;
-
+    String QRlog = "QR_STATUS";
+    int QRLC = 0;
+    int LM = 5;
+    com.google.zxing.Result qr = null;
+    String QR_str = null;
+    String pattern_raw = null;
+    String pos_x_raw = null;
+    String pos_y_raw = null;
+    String pos_z_raw = null;
     @Override
     protected void runPlan1() {
         api.startMission();
 
         moveToWrapper(11.3277, -9.8422, 4.8726, 0, 0, -0.707, 0.707);
 
-        do {
-            qrcheck = detectQR();
-            qrloopCounter++;
+        do{
+            detectQR();
+           QRLC++;
         }
-        while (qrcheck == null && qrloopCounter < LOOP_MAX);
+        while (qr == null && QRLC < LM);
 
-        Log.i("QR_DATA", qrcheck);
+        QR_str = String.valueOf(qr);
 
-        api.sendDiscoveredQR(qrcheck);
+        Log.i(QRlog, QR_str);
+        api.sendDiscoveredQR(QR_str);
 
-
-        Log.i("KINEMATICS : ", "POS : " + api.getTrustedRobotKinematics());
-
-        try {
-            JSONObject jsonObj = new JSONObject(qrcheck);
-            p_raw = jsonObj.getString("p");
-            x_raw = jsonObj.getString("x");
-            y_raw = jsonObj.getString("y");
-            z_raw = jsonObj.getString("z");
-        } catch (Exception e) {
-            Log.e("STATUS : ", "JSONerror");
+        try{
+            JSONObject split = new JSONObject(QR_str);
+            pattern_raw = split.getString("p");
+            pos_x_raw = split.getString("x");
+            pos_y_raw = split.getString("y");
+            pos_z_raw = split.getString("z");
+        } catch (JSONException e) {
+            Log.e(QRlog, "QR_NOT_CONVERTED");
         }
-
-        int pattern = Integer.parseInt(p_raw);
-        double pos_x = Double.parseDouble(x_raw);
-        double pos_y = Double.parseDouble(y_raw);
-        double pos_z = Double.parseDouble(z_raw);
+        int pattern = Integer.parseInt(pattern_raw);
+        Log.i(QRlog,"PATTERN : " + pattern);
+        double pos_x = Double.parseDouble(pos_x_raw);
+        Log.i(QRlog,"POS_X : " + pos_x);
+        double pos_y = Double.parseDouble(pos_y_raw);
+        Log.i(QRlog,"POS_Y : " + pos_y);
+        double pos_z = Double.parseDouble(pos_z_raw);
+        Log.i(QRlog,"POS_Z : " + pos_z);
 
         if (pattern == 1 || pattern == 2) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.46, 0, 0, -0.707, 0.707);
-            Log.i("KINEMATICS : ", "POS1 : " + api.getTrustedRobotKinematics());
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
         } else if (pattern == 3) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.41, 0, 0, -0.707, 0.707);
-            Log.i("KINEMATICS : ", "POS1 : " + api.getTrustedRobotKinematics());
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
         } else if (pattern == 4) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.45, 0, 0, -0.707, 0.707);
-            Log.i("KINEMATICS : ", "POS1 : " + api.getTrustedRobotKinematics());
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
         } else if (pattern == 5) {
             double x_kiz_left = pos_x - 0.35;
             moveToWrapper(x_kiz_left, pos_y, pos_z - 0.68, 0, 0, -0.707, 0.707);
-            Log.i("KINEMATICS : ", "POS1 : " + api.getTrustedRobotKinematics());
             moveToWrapper(x_kiz_left, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            Log.i("KINEMATICS : ", "POS2 : " + api.getTrustedRobotKinematics());
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
         } else if (pattern == 6) {
             double x_kiz_left = pos_x - 0.35;
             moveToWrapper(x_kiz_left, pos_y, pos_z - 0.64, 0, 0, -0.707, 0.707);
-            Log.i("KINEMATICS : ", "POS1 : " + api.getTrustedRobotKinematics());
             moveToWrapper(x_kiz_left, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            Log.i("KINEMATICS : ", "POS2 : " + api.getTrustedRobotKinematics());
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
         } else if (pattern == 7) {
             double x_kiz_right = pos_x + 0.19;
             moveToWrapper(pos_x + 0.0277, pos_y, pos_z - 0.78, 0, 0, -0.707, 0.707);
-            Log.i("KINEMATICS : ", "POS1 : " + api.getTrustedRobotKinematics());
             moveToWrapper(x_kiz_right, pos_y, pos_z - 0.78, 0, 0, -0.707, 0.707);
-            Log.i("KINEMATICS : ", "POS2 : " + api.getTrustedRobotKinematics());
             moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            Log.i("KINEMATICS : ", "POS3 : " + api.getTrustedRobotKinematics());
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
         } else if (pattern == 8) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.43, 0, 0, -0.707, 0.707);
-            Log.i("KINEMATICS : ", "POS1 : " + api.getTrustedRobotKinematics());
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
         }
 
-
-        Log.i("KINEMATICS : ", "POS_FINISHAR : " + api.getTrustedRobotKinematics());
-
-
-        api.reportMissionCompletion();
     }
 
     @Override
@@ -140,46 +125,30 @@ public class YourService extends KiboRpcService {
         // write here your plan 3
     }
 
-    private void moveToWrapper(double pos_x, double pos_y, double pos_z,
-                               double qua_x, double qua_y, double qua_z,
-                               double qua_w) {
-
-        final int LOOP_MAX = 5;
+    private void moveToWrapper(double pos_x, double pos_y, double pos_z, double qua_x, double qua_y, double qua_z, double qua_w) {
+        int MVLC = 0;
         final Point point = new Point(pos_x, pos_y, pos_z);
-        final Quaternion quaternion = new Quaternion((float) qua_x, (float) qua_y,
-                (float) qua_z, (float) qua_w);
+        final Quaternion quaternion = new Quaternion((float) qua_x, (float) qua_y, (float) qua_z, (float) qua_w);
 
         Result result = api.moveTo(point, quaternion, true);
 
-        int loopCounter = 0;
-        while (!result.hasSucceeded() && loopCounter < LOOP_MAX) {
+        while (!result.hasSucceeded() && MVLC < LM){
             result = api.moveTo(point, quaternion, true);
-            ++loopCounter;
+            LM++;
         }
     }
-
-    private String detectQR() {
-        String QRtag = "QR_STATUS";
+    private void detectQR(){
         Bitmap bMap = api.getBitmapNavCam();
-        String pos_x;
-        com.google.zxing.Result qrcode = null;
-        Bitmap crop_bMap = Bitmap.createBitmap(bMap, 520, 560, 200, 200);
-        Log.i(QRtag, "CROPPED_QR");
-        int[] intArray = new int[crop_bMap.getWidth() * crop_bMap.getHeight()];
-        crop_bMap.getPixels(intArray, 0, crop_bMap.getWidth(), 0, 0, crop_bMap.getWidth(), crop_bMap.getHeight());
-        try {
-            LuminanceSource source = new RGBLuminanceSource(crop_bMap.getWidth(), crop_bMap.getHeight(), intArray);
-            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-            qrcode = new QRCodeReader().decode(bitmap);
-            Log.i(QRtag, "QR_DETECTED");
-        } catch (Exception e) {
-            Log.e(QRtag, "QR_NOT_DETECTED");
-            Log.e("QR_LOG_ERROR", "ERROR : " + e);
+        Bitmap c_bMap = Bitmap.createBitmap(bMap,520,560,200,200);
+        int[] size_bMap = new int[c_bMap.getWidth()*c_bMap.getHeight()];
+        c_bMap.getPixels(size_bMap,0,c_bMap.getWidth(),0,0,c_bMap.getWidth(),c_bMap.getHeight());
+        try{
+            LuminanceSource lms = new RGBLuminanceSource(c_bMap.getWidth(),c_bMap.getHeight(),size_bMap);
+            BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(lms));
+            qr = new QRCodeReader().decode(bitmap);
+        }catch (Exception e){
+            Log.e(QRlog, "QR_NOT_DETECTED");
         }
-
-        assert qrcode != null;
-        pos_x = qrcode.getText();
-        return pos_x;
+        assert qr != null;
     }
 }
-
