@@ -33,14 +33,18 @@ import gov.nasa.arc.astrobee.types.Quaternion;
 
 public class YourService extends KiboRpcService {
     String QRlog = "QR_STATUS";
+    String ARlog = "AR_STATUS";
     int QRLC = 0;
+    int ARLC = 0;
     int LM = 5;
+    int AR_LM = 3;
     com.google.zxing.Result qr = null;
     String QR_str = null;
     String pattern_raw = null;
     String pos_x_raw = null;
     String pos_y_raw = null;
     String pos_z_raw = null;
+    Mat ids_global;
     @Override
     protected void runPlan1() {
         api.startMission();
@@ -80,26 +84,66 @@ public class YourService extends KiboRpcService {
             moveToWrapper(pos_x, pos_y, pos_z - 0.46, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
+            do {
+                try {
+                    detectAR();
+                } catch (JSONException e) {
+                    Log.e(ARlog, "AR_NOT_DETECTED");
+                }
+                ARLC++;
+            }while (ids_global.rows() == 0 && ARLC < AR_LM);
         } else if (pattern == 3) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.41, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
+            do {
+                try {
+                    detectAR();
+                } catch (JSONException e) {
+                    Log.e(ARlog, "AR_NOT_DETECTED");
+                }
+                ARLC++;
+            }while (ids_global.rows() == 0 && ARLC < AR_LM);
         } else if (pattern == 4) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.45, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
+            do {
+                try {
+                    detectAR();
+                } catch (JSONException e) {
+                    Log.e(ARlog, "AR_NOT_DETECTED");
+                }
+                ARLC++;
+            }while (ids_global.rows() == 0 && ARLC < AR_LM);
         } else if (pattern == 5) {
             double x_kiz_left = pos_x - 0.35;
             moveToWrapper(x_kiz_left, pos_y, pos_z - 0.68, 0, 0, -0.707, 0.707);
             moveToWrapper(x_kiz_left, pos_y, pos_z, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
+            do {
+                try {
+                    detectAR();
+                } catch (JSONException e) {
+                    Log.e(ARlog, "AR_NOT_DETECTED");
+                }
+                ARLC++;
+            }while (ids_global.rows() == 0 && ARLC < AR_LM);
         } else if (pattern == 6) {
             double x_kiz_left = pos_x - 0.35;
             moveToWrapper(x_kiz_left, pos_y, pos_z - 0.64, 0, 0, -0.707, 0.707);
             moveToWrapper(x_kiz_left, pos_y, pos_z, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
+            do {
+                try {
+                    detectAR();
+                } catch (JSONException e) {
+                    Log.e(ARlog, "AR_NOT_DETECTED");
+                }
+                ARLC++;
+            }while (ids_global.rows() == 0 && ARLC < AR_LM);
         } else if (pattern == 7) {
             double x_kiz_right = pos_x + 0.19;
             moveToWrapper(pos_x + 0.0277, pos_y, pos_z - 0.78, 0, 0, -0.707, 0.707);
@@ -107,12 +151,29 @@ public class YourService extends KiboRpcService {
             moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
+            do {
+                try {
+                    detectAR();
+                } catch (JSONException e) {
+                    Log.e(ARlog, "AR_NOT_DETECTED");
+                }
+                ARLC++;
+            }while (ids_global.rows() == 0 && ARLC < AR_LM);
         } else if (pattern == 8) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.43, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
+            do {
+                try {
+                    detectAR();
+                } catch (JSONException e) {
+                    Log.e(ARlog, "AR_NOT_DETECTED");
+                }
+                ARLC++;
+            }while (ids_global.rows() == 0 && ARLC < AR_LM);
         }
 
+        api.reportMissionCompletion();
     }
 
     @Override
@@ -150,5 +211,21 @@ public class YourService extends KiboRpcService {
             Log.e(QRlog, "QR_NOT_DETECTED");
         }
         assert qr != null;
+    }
+
+    private void detectAR() throws JSONException {
+        Mat AR_ID = new Mat();
+        Mat mMat = api.getMatNavCam();
+        Dictionary AR_DICT = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
+        DetectorParameters parameters = DetectorParameters.create();
+        parameters.set_minMarkerDistanceRate(0.05f);
+        JSONArray JsonObj = new JSONArray();
+        List<Mat> rj = new ArrayList<>();
+        List<Mat> AR_CN = new ArrayList<>();
+        Aruco.detectMarkers(mMat,AR_DICT,AR_CN,AR_ID,parameters,rj);
+        for(int i=0; AR_CN.size()<4; i++) {
+            Log.i(ARlog, String.valueOf(AR_CN.get(0).get(0, i)[0]));
+        }
+        ids_global = AR_ID;
     }
 }
