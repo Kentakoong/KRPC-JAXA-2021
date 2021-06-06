@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import org.opencv.aruco.Aruco;
 import org.opencv.aruco.DetectorParameters;
 import org.opencv.aruco.Dictionary;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class YourService extends KiboRpcService {
     int QRLC = 0;
     int ARLC = 0;
     int LM = 5;
-    int AR_LM = 3;
+    int AR_LM = 2;
     com.google.zxing.Result qr = null;
     String QR_str = null;
     String pattern_raw = null;
@@ -91,7 +92,7 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() == 0 && ARLC < AR_LM);
+            }while (ids_global.rows() != 2 && ARLC < AR_LM);
         } else if (pattern == 3) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.41, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
@@ -103,7 +104,7 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() == 0 && ARLC < AR_LM);
+            }while (ids_global.rows() != 2 && ARLC < AR_LM);
         } else if (pattern == 4) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.45, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
@@ -115,7 +116,7 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() == 0 && ARLC < AR_LM);
+            }while (ids_global.rows() != 2 && ARLC < AR_LM);
         } else if (pattern == 5) {
             double x_kiz_left = pos_x - 0.35;
             moveToWrapper(x_kiz_left, pos_y, pos_z - 0.68, 0, 0, -0.707, 0.707);
@@ -129,7 +130,7 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() == 0 && ARLC < AR_LM);
+            }while (ids_global.rows() != 2 && ARLC < AR_LM);
         } else if (pattern == 6) {
             double x_kiz_left = pos_x - 0.35;
             moveToWrapper(x_kiz_left, pos_y, pos_z - 0.64, 0, 0, -0.707, 0.707);
@@ -143,10 +144,10 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() == 0 && ARLC < AR_LM);
+            }while (ids_global.rows() != 2 && ARLC < AR_LM);
         } else if (pattern == 7) {
             double x_kiz_right = pos_x + 0.19;
-            moveToWrapper(pos_x + 0.0277, pos_y, pos_z - 0.78, 0, 0, -0.707, 0.707);
+            moveToWrapper(pos_x + 0.0250, pos_y, pos_z - 0.78, 0, 0, -0.707, 0.707);
             moveToWrapper(x_kiz_right, pos_y, pos_z - 0.78, 0, 0, -0.707, 0.707);
             moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
@@ -158,7 +159,7 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() == 0 && ARLC < AR_LM);
+            }while (ids_global.rows() != 2 && ARLC < AR_LM);
         } else if (pattern == 8) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.43, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
@@ -170,8 +171,10 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() == 0 && ARLC < AR_LM);
+            }while (ids_global.rows() != 2 && ARLC < AR_LM);
         }
+
+
 
         api.reportMissionCompletion();
     }
@@ -214,18 +217,39 @@ public class YourService extends KiboRpcService {
     }
 
     private void detectAR() throws JSONException {
+        int AR_dtLC = 0;
         Mat AR_ID = new Mat();
         Mat mMat = api.getMatNavCam();
         Dictionary AR_DICT = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
         DetectorParameters parameters = DetectorParameters.create();
         parameters.set_minMarkerDistanceRate(0.05f);
+        parameters.set_minMarkerPerimeterRate(0.05d);
+        float AR_mkL = 0.05f;
         JSONArray JsonObj = new JSONArray();
         List<Mat> rj = new ArrayList<>();
         List<Mat> AR_CN = new ArrayList<>();
-        Aruco.detectMarkers(mMat,AR_DICT,AR_CN,AR_ID,parameters,rj);
-        for(int i=0; AR_CN.size()<4; i++) {
-            Log.i(ARlog, String.valueOf(AR_CN.get(0).get(0, i)[0]));
-        }
+        Mat AR_rVec = new Mat();
+        Mat AR_tVec = new Mat();
+        int uds_row = 1280; int uds_col = 960;
+        Mat AR_cMT = new Mat(3, 3, CvType.CV_32FC1);
+        Mat AR_dC = new Mat(1, 5, CvType.CV_32FC1);
+        double cMT_value[] =
+                {
+                        567.229305, 0.0, 659.077221,
+                        0.0, 574.192915, 517.007571,
+                        0.0, 0.0, 1.0
+                };
+        double dC_value[] = {-0.216247, 0.03875, -0.010157, 0.001969, 0.0};
+        AR_cMT.put(uds_row, uds_col, cMT_value);
+        AR_dC.put(uds_row, uds_col, dC_value);
+        do {
+            Aruco.detectMarkers(mMat, AR_DICT, AR_CN, AR_ID, parameters, rj);
+            Aruco.estimatePoseSingleMarkers(AR_CN, AR_mkL, AR_cMT, AR_dC, AR_rVec, AR_tVec);
+            JsonObj.put(Integer.parseInt(String.valueOf(AR_ID.get(AR_dtLC,0)[0])), String.valueOf(AR_CN.get(AR_dtLC).dump()));
+            Log.i(ARlog, String.valueOf((int) AR_ID.get(AR_dtLC, 0)[0]));
+            Log.i(ARlog, String.valueOf(AR_CN.get(0).get(0, AR_dtLC)[0]));
+            AR_dtLC++;
+        }while(AR_ID.rows() != 2 && AR_dtLC < AR_LM);
         ids_global = AR_ID;
     }
 }
