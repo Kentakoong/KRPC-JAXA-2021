@@ -81,10 +81,14 @@ public class YourService extends KiboRpcService {
         double pos_z = Double.parseDouble(pos_z_raw);
         Log.i(QRlog,"POS_Z : " + pos_z);
 
-        if (pattern == 1 || pattern == 2) {
+        if (pattern == 1) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.46, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
+        }else if (pattern == 2) {
+            moveToWrapper(pos_x, pos_y, pos_z - 0.46, 0, 0, -0.707, 0.707);
+            moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
+            Log.i("STATUS : ", "MOVED TO A_prime");/*
             do {
                 try {
                     detectAR();
@@ -92,7 +96,10 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() != 2 && ARLC < AR_LM);
+            }while (ids_global.rows() != 2 && ARLC < AR_LM); */
+            moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
+            moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
+            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
         } else if (pattern == 3) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.41, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
@@ -146,8 +153,8 @@ public class YourService extends KiboRpcService {
                 ARLC++;
             }while (ids_global.rows() != 2 && ARLC < AR_LM);
         } else if (pattern == 7) {
-            double x_kiz_right = pos_x + 0.19;
-            moveToWrapper(pos_x + 0.0250, pos_y, pos_z - 0.78, 0, 0, -0.707, 0.707);
+            double x_kiz_right = pos_x + 0.22;
+            moveToWrapper(pos_x + 0.22, pos_y, pos_z - 0.78, 0, 0, -0.707, 0.707);
             moveToWrapper(x_kiz_right, pos_y, pos_z - 0.78, 0, 0, -0.707, 0.707);
             moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
@@ -173,7 +180,6 @@ public class YourService extends KiboRpcService {
                 ARLC++;
             }while (ids_global.rows() != 2 && ARLC < AR_LM);
         }
-
 
 
         api.reportMissionCompletion();
