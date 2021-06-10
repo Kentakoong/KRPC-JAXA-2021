@@ -33,19 +33,19 @@ import gov.nasa.arc.astrobee.types.Quaternion;
  */
 
 public class YourService extends KiboRpcService {
-    String QRlog = "QR_STATUS";
-    String ARlog = "AR_STATUS";
+    final String QRlog = "QR_STATUS";
+    final String ARlog = "AR_STATUS";
     int QRLC = 0;
     int ARLC = 0;
-    int LM = 5;
-    int AR_LM = 2;
+    final int LM = 5;
+    final int AR_LM = 2;
     com.google.zxing.Result qr = null;
     String QR_str = null;
     String pattern_raw = null;
     String pos_x_raw = null;
     String pos_y_raw = null;
     String pos_z_raw = null;
-    Mat ids_global;
+    Mat AR_ID = new Mat();
     @Override
     protected void runPlan1() {
         api.startMission();
@@ -85,10 +85,6 @@ public class YourService extends KiboRpcService {
             moveToWrapper(pos_x, pos_y, pos_z - 0.46, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
-        }else if (pattern == 2) {
-            moveToWrapper(pos_x, pos_y, pos_z - 0.46, 0, 0, -0.707, 0.707);
-            moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            Log.i("STATUS : ", "MOVED TO A_prime");/*
             do {
                 try {
                     detectAR();
@@ -96,9 +92,29 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() != 2 && ARLC < AR_LM); */
-            moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
+            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            api.laserControl(true);
+            api.takeSnapshot();
+            api.laserControl(false);
+            moveToWrapper(pos_x, pos_y, pos_z-0.1, 0, 0, -0.707, 0.707);
             moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
+            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+        }else if (pattern == 2) {
+            moveToWrapper(pos_x, pos_y, pos_z - 0.46, 0, 0, -0.707, 0.707);
+            moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
+            Log.i("STATUS : ", "MOVED TO A_prime");
+            do {
+                try {
+                    detectAR();
+                } catch (JSONException e) {
+                    Log.e(ARlog, "AR_NOT_DETECTED");
+                }
+                ARLC++;
+            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            api.laserControl(true);
+            api.takeSnapshot();
+            api.laserControl(false);
+            moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
             moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
         } else if (pattern == 3) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.41, 0, 0, -0.707, 0.707);
@@ -111,7 +127,12 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            api.laserControl(true);
+            api.takeSnapshot();
+            api.laserControl(false);
+            moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
+            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
         } else if (pattern == 4) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.45, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
@@ -123,7 +144,12 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            api.laserControl(true);
+            api.takeSnapshot();
+            api.laserControl(false);
+            moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
+            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
         } else if (pattern == 5) {
             double x_kiz_left = pos_x - 0.35;
             moveToWrapper(x_kiz_left, pos_y, pos_z - 0.68, 0, 0, -0.707, 0.707);
@@ -137,7 +163,12 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            api.laserControl(true);
+            api.takeSnapshot();
+            api.laserControl(false);
+            moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
+            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
         } else if (pattern == 6) {
             double x_kiz_left = pos_x - 0.35;
             moveToWrapper(x_kiz_left, pos_y, pos_z - 0.64, 0, 0, -0.707, 0.707);
@@ -151,11 +182,16 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            api.laserControl(true);
+            api.takeSnapshot();
+            api.laserControl(false);
+            moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
+            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
         } else if (pattern == 7) {
             double x_kiz_right = pos_x + 0.22;
-            moveToWrapper(pos_x + 0.22, pos_y, pos_z - 0.78, 0, 0, -0.707, 0.707);
-            moveToWrapper(x_kiz_right, pos_y, pos_z - 0.78, 0, 0, -0.707, 0.707);
+            moveToWrapper(pos_x + 0.22, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
+            moveToWrapper(x_kiz_right, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
             moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
@@ -166,7 +202,14 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            api.laserControl(true);
+            api.takeSnapshot();
+            api.laserControl(false);
+            moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
+            moveToWrapper(x_kiz_right, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
+            moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
+            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
         } else if (pattern == 8) {
             moveToWrapper(pos_x, pos_y, pos_z - 0.43, 0, 0, -0.707, 0.707);
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
@@ -178,7 +221,13 @@ public class YourService extends KiboRpcService {
                     Log.e(ARlog, "AR_NOT_DETECTED");
                 }
                 ARLC++;
-            }while (ids_global.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            api.laserControl(true);
+            api.takeSnapshot();
+            api.laserControl(false);
+            moveToWrapper(pos_x, pos_y, pos_z-0.4, 0, 0, -0.707, 0.707);
+            moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
+            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
         }
 
 
@@ -204,12 +253,12 @@ public class YourService extends KiboRpcService {
 
         while (!result.hasSucceeded() && MVLC < LM){
             result = api.moveTo(point, quaternion, true);
-            LM++;
+            MVLC++;
         }
     }
     private void detectQR(){
         Bitmap bMap = api.getBitmapNavCam();
-        Bitmap c_bMap = Bitmap.createBitmap(bMap,520,560,200,200);
+        Bitmap c_bMap = Bitmap.createBitmap(bMap,510,550,220,220);
         int[] size_bMap = new int[c_bMap.getWidth()*c_bMap.getHeight()];
         c_bMap.getPixels(size_bMap,0,c_bMap.getWidth(),0,0,c_bMap.getWidth(),c_bMap.getHeight());
         try{
@@ -224,28 +273,27 @@ public class YourService extends KiboRpcService {
 
     private void detectAR() throws JSONException {
         int AR_dtLC = 0;
-        Mat AR_ID = new Mat();
         Mat mMat = api.getMatNavCam();
         Dictionary AR_DICT = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
         DetectorParameters parameters = DetectorParameters.create();
         parameters.set_minMarkerDistanceRate(0.05f);
         parameters.set_minMarkerPerimeterRate(0.05d);
-        float AR_mkL = 0.05f;
+        final float AR_mkL = 0.05f;
         JSONArray JsonObj = new JSONArray();
         List<Mat> rj = new ArrayList<>();
         List<Mat> AR_CN = new ArrayList<>();
         Mat AR_rVec = new Mat();
         Mat AR_tVec = new Mat();
-        int uds_row = 1280; int uds_col = 960;
+        final int uds_row = 1280; final int uds_col = 960;
         Mat AR_cMT = new Mat(3, 3, CvType.CV_32FC1);
         Mat AR_dC = new Mat(1, 5, CvType.CV_32FC1);
-        double cMT_value[] =
+        final double cMT_value[] =
                 {
                         567.229305, 0.0, 659.077221,
                         0.0, 574.192915, 517.007571,
                         0.0, 0.0, 1.0
                 };
-        double dC_value[] = {-0.216247, 0.03875, -0.010157, 0.001969, 0.0};
+        final double dC_value[] = {-0.216247, 0.03875, -0.010157, 0.001969, 0.0};
         AR_cMT.put(uds_row, uds_col, cMT_value);
         AR_dC.put(uds_row, uds_col, dC_value);
         do {
