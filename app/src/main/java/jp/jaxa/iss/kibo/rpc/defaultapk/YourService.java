@@ -21,6 +21,7 @@ import org.opencv.aruco.Dictionary;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class YourService extends KiboRpcService {
     String pos_x_raw = null;
     String pos_y_raw = null;
     String pos_z_raw = null;
-    Mat AR_ID = new Mat();
+    Mat AR_ID_PUBLIC;
     @Override
     protected void runPlan1() {
         api.startMission();
@@ -86,13 +87,9 @@ public class YourService extends KiboRpcService {
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
             do {
-                try {
-                    detectAR();
-                } catch (JSONException e) {
-                    Log.e(ARlog, "AR_NOT_DETECTED");
-                }
+                detectAR();
                 ARLC++;
-            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID_PUBLIC.rows() < 4 && ARLC < AR_LM);
             api.laserControl(true);
             api.takeSnapshot();
             api.laserControl(false);
@@ -104,13 +101,9 @@ public class YourService extends KiboRpcService {
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
             do {
-                try {
-                    detectAR();
-                } catch (JSONException e) {
-                    Log.e(ARlog, "AR_NOT_DETECTED");
-                }
+                detectAR();
                 ARLC++;
-            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID_PUBLIC.rows() < 4 && ARLC < AR_LM);
             api.laserControl(true);
             api.takeSnapshot();
             api.laserControl(false);
@@ -121,13 +114,9 @@ public class YourService extends KiboRpcService {
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
             do {
-                try {
-                    detectAR();
-                } catch (JSONException e) {
-                    Log.e(ARlog, "AR_NOT_DETECTED");
-                }
+                detectAR();
                 ARLC++;
-            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID_PUBLIC.rows() < 4 && ARLC < AR_LM);
             api.laserControl(true);
             api.takeSnapshot();
             api.laserControl(false);
@@ -138,13 +127,9 @@ public class YourService extends KiboRpcService {
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
             do {
-                try {
-                    detectAR();
-                } catch (JSONException e) {
-                    Log.e(ARlog, "AR_NOT_DETECTED");
-                }
+                detectAR();
                 ARLC++;
-            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID_PUBLIC.rows() < 4 && ARLC < AR_LM);
             api.laserControl(true);
             api.takeSnapshot();
             api.laserControl(false);
@@ -157,13 +142,9 @@ public class YourService extends KiboRpcService {
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
             do {
-                try {
-                    detectAR();
-                } catch (JSONException e) {
-                    Log.e(ARlog, "AR_NOT_DETECTED");
-                }
+                detectAR();
                 ARLC++;
-            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID_PUBLIC.rows() < 4 && ARLC < AR_LM);
             api.laserControl(true);
             api.takeSnapshot();
             api.laserControl(false);
@@ -176,13 +157,9 @@ public class YourService extends KiboRpcService {
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
             do {
-                try {
-                    detectAR();
-                } catch (JSONException e) {
-                    Log.e(ARlog, "AR_NOT_DETECTED");
-                }
+                detectAR();
                 ARLC++;
-            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID_PUBLIC.rows() < 4 && ARLC < AR_LM);
             api.laserControl(true);
             api.takeSnapshot();
             api.laserControl(false);
@@ -196,13 +173,9 @@ public class YourService extends KiboRpcService {
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
             do {
-                try {
-                    detectAR();
-                } catch (JSONException e) {
-                    Log.e(ARlog, "AR_NOT_DETECTED");
-                }
+                detectAR();
                 ARLC++;
-            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID_PUBLIC.rows() < 4 && ARLC < AR_LM);
             api.laserControl(true);
             api.takeSnapshot();
             api.laserControl(false);
@@ -215,13 +188,9 @@ public class YourService extends KiboRpcService {
             moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
             Log.i("STATUS : ", "MOVED TO A_prime");
             do {
-                try {
-                    detectAR();
-                } catch (JSONException e) {
-                    Log.e(ARlog, "AR_NOT_DETECTED");
-                }
+                detectAR();
                 ARLC++;
-            }while (AR_ID.rows() != 2 && ARLC < AR_LM);
+            }while (AR_ID_PUBLIC.rows() < 4 && ARLC < AR_LM);
             api.laserControl(true);
             api.takeSnapshot();
             api.laserControl(false);
@@ -271,22 +240,19 @@ public class YourService extends KiboRpcService {
         assert qr != null;
     }
 
-    private void detectAR() throws JSONException {
-        int AR_dtLC = 0;
-        Mat mMat = api.getMatNavCam();
-        Dictionary AR_DICT = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
-        DetectorParameters parameters = DetectorParameters.create();
-        parameters.set_minMarkerDistanceRate(0.05f);
-        parameters.set_minMarkerPerimeterRate(0.05d);
-        final float AR_mkL = 0.05f;
-        JSONArray JsonObj = new JSONArray();
-        List<Mat> rj = new ArrayList<>();
-        List<Mat> AR_CN = new ArrayList<>();
-        Mat AR_rVec = new Mat();
-        Mat AR_tVec = new Mat();
+    private void detectAR(){
+        Mat img = api.getMatNavCam();
+        Dictionary dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
+        List<Mat> corners = new ArrayList<>();
+        Mat ids = new Mat();
+        DetectorParameters detectparam = DetectorParameters.create();
+        List<Mat> reject = new ArrayList<>();
+        float markerLength = 0.05f;
+        Mat rVecs = new Mat();
+        Mat tVecs = new Mat();
         final int uds_row = 1280; final int uds_col = 960;
-        Mat AR_cMT = new Mat(3, 3, CvType.CV_32FC1);
-        Mat AR_dC = new Mat(1, 5, CvType.CV_32FC1);
+        Mat cameraMatrix = new Mat(3, 3, CvType.CV_32FC1);
+        Mat distCoeffs = new Mat(1, 5, CvType.CV_32FC1);
         final double cMT_value[] =
                 {
                         567.229305, 0.0, 659.077221,
@@ -294,16 +260,18 @@ public class YourService extends KiboRpcService {
                         0.0, 0.0, 1.0
                 };
         final double dC_value[] = {-0.216247, 0.03875, -0.010157, 0.001969, 0.0};
-        AR_cMT.put(uds_row, uds_col, cMT_value);
-        AR_dC.put(uds_row, uds_col, dC_value);
-        do {
-            Aruco.detectMarkers(mMat, AR_DICT, AR_CN, AR_ID, parameters, rj);
-            Aruco.estimatePoseSingleMarkers(AR_CN, AR_mkL, AR_cMT, AR_dC, AR_rVec, AR_tVec);
-            JsonObj.put(Integer.parseInt(String.valueOf(AR_ID.get(AR_dtLC,0)[0])), String.valueOf(AR_CN.get(AR_dtLC).dump()));
-            Log.i(ARlog, String.valueOf((int) AR_ID.get(AR_dtLC, 0)[0]));
-            Log.i(ARlog, String.valueOf(AR_CN.get(0).get(0, AR_dtLC)[0]));
-            AR_dtLC++;
-        }while(AR_ID.rows() != 2 && AR_dtLC < AR_LM);
-        ids_global = AR_ID;
+        cameraMatrix.put(uds_row, uds_col, cMT_value);
+        distCoeffs.put(uds_row, uds_col, dC_value);
+        detectparam.set_minMarkerDistanceRate(0.05f);
+        detectparam.set_minMarkerPerimeterRate(0.05d);
+        for(int i = 0; ids.rows() < 4; i++) {
+            Aruco.detectMarkers(img, dict, corners, ids, detectparam, reject);
+            Aruco.estimatePoseSingleMarkers(corners,markerLength,cameraMatrix,distCoeffs,rVecs,tVecs);
+            Log.i(ARlog, String.valueOf((int) ids.get(0, 0)[i]));
+            for (int cnn = 0; cnn != 4; cnn++) {
+                Log.i(ARlog, String.valueOf(corners.get(0).get(0, cnn)[i]));
+            }
+        }
+        AR_ID_PUBLIC = ids;
     }
 }
