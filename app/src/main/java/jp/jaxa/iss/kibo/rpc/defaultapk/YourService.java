@@ -20,6 +20,8 @@ import org.opencv.aruco.DetectorParameters;
 import org.opencv.aruco.Dictionary;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.calib3d.Calib3d;
+import org.opencv.imgproc.Imgproc;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -37,16 +39,15 @@ public class YourService extends KiboRpcService {
     final String QRlog = "QR_STATUS";
     final String ARlog = "AR_STATUS";
     int QRLC = 0;
-    int ARLC = 0;
     final int LM = 5;
-    final int AR_LM = 4;
+    final int AR_LM = 5;
     com.google.zxing.Result qr = null;
     String QR_str = null;
     String pattern_raw = null;
     String pos_x_raw = null;
     String pos_y_raw = null;
     String pos_z_raw = null;
-    Mat AR_ID_PUBLIC;
+
     @Override
     protected void runPlan1() {
         api.startMission();
@@ -90,6 +91,7 @@ public class YourService extends KiboRpcService {
                 detectAR();
             } catch (JSONException e) {
                 e.printStackTrace();
+                Log.e(ARlog,"AR_FAILED");
             }
             api.laserControl(true);
             api.takeSnapshot();
@@ -249,7 +251,8 @@ public class YourService extends KiboRpcService {
     }
 
     private void detectAR() throws JSONException {
-        int loopcounter = 0;
+        int IDLC = 0;
+        int rVecLC = 0;
         Mat img = api.getMatNavCam();
         Dictionary dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
         List<Mat> corners = new ArrayList<>();
@@ -259,10 +262,10 @@ public class YourService extends KiboRpcService {
         float markerLength = 0.05f;
         Mat rVecs = new Mat();
         Mat tVecs = new Mat();
-        double tX = 0;
-        double tY = 0;
-        JSONArray JsonObj = new JSONArray();
-        final int uds_row = 1280; final int uds_col = 960;
+        Mat rot = new Mat();
+        Mat mtxR = new Mat();
+        Mat mtxQ = new Mat();
+        JSONObject jsonRPY = new JSONObject();
         Mat cameraMatrix = new Mat(3, 3, CvType.CV_32FC1);
         Mat distCoeffs = new Mat(1, 5, CvType.CV_32FC1);
         final double cMT_value[] =
@@ -272,28 +275,57 @@ public class YourService extends KiboRpcService {
                         0.0, 0.0, 1.0
                 };
         final double dC_value[] = {-0.216247, 0.03875, -0.010157, 0.001969, 0.0};
-        cameraMatrix.put(uds_row, uds_col, cMT_value);
-        distCoeffs.put(uds_row, uds_col, dC_value);
+        cameraMatrix.put(1280, 960, cMT_value);
+        distCoeffs.put(1280, 960, dC_value);
         detectparam.set_minMarkerDistanceRate(0.05f);
         detectparam.set_minMarkerPerimeterRate(0.05d);
         detectparam.set_maxMarkerPerimeterRate(0.5d);
         detectparam.set_errorCorrectionRate(0.001d);
-        int getID = 0;
-        for(int i=0;ids.rows()<4; i++){
+        Aruco.detectMarkers(img, dict, corners, ids, detectparam, reject);
+        while (ids.rows() != 4 && IDLC < AR_LM){
             Aruco.detectMarkers(img, dict, corners, ids, detectparam, reject);
-            Aruco.estimatePoseSingleMarkers(corners, markerLength, cameraMatrix, distCoeffs, rVecs, tVecs);
-            getID = (int) ids.get(i,0)[0];
-            Log.i(ARlog,String.valueOf(getID));
+            IDLC++;
         }
-            for(int b=0;b < 4; b++){
-                for(int c=0;c < 4; c++) {
-                    JsonObj.put((int) ids.get(a, 0)[0], (int) corners.get(a).get(0, c)[b]);
-                }
-            }
-            float pos_x = (float) tVecs.get(0,0)[0];
-            float pos_y = (float) tVecs.get(0,1)[0];
-            float pos_z = (float) tVecs.get(0,2)[0];
-            Log.i(ARlog,"POS : " + pos_x + "," + pos_y + "," + pos_z);
-        AR_ID_PUBLIC = ids;
+
+        Log.i(ARlog, "AR_DETECTED");
+        while(rVecLC < rVecs.rows() && rVecLC < AR_LM){
+            Aruco.estimatePoseSingleMarkers(corners, markerLength, cameraMatrix, distCoeffs, rVecs, tVecs);
+            rVecLC++;
+        }
+        for (int i = 0; i < rVecs.rows(); ++i) {
+        Calib3d.Rodrigues(rVecs.row(i), rot);
+        double[] eulerAngle = Calib3d.RQDecomp3x3(rot, mtxR, mtxQ);
+        float pos_yaw = (float) eulerAngle[0];
+        float pos_pitch = (float) -eulerAngle[1];
+        float pos_roll = (float) -eulerAngle[2];
+        jsonRPY.put(String.valueOf(ids.get(i, 0)[0]), pos_roll + "," + pos_pitch + "," + pos_yaw);
+        Log.i(ARlog, String.valueOf(jsonRPY));
+        }
+        JSONObject sepValue = new JSONObject(String.valueOf(jsonRPY));
+
+        String ID1 = sepValue.getString("1.0");
+        String[] splitComma_1 = ID1.split(",");
+        Double roll_1 = Double.parseDouble(splitComma_1[0]);
+        Double pitch_1 = Double.parseDouble(splitComma_1[1]);
+        Double yaw_1 = Double.parseDouble(splitComma_1[2]);
+
+        String ID2 = sepValue.getString("2.0");
+        String[] splitComma_2 = ID1.split(",");
+        Double roll_2 = Double.parseDouble(splitComma_2[0]);
+        Double pitch_2 = Double.parseDouble(splitComma_2[1]);
+        Double yaw_2 = Double.parseDouble(splitComma_2[2]);
+
+        String ID3 = sepValue.getString("3.0");
+        String[] splitComma_3 = ID1.split(",");
+        Double roll_3 = Double.parseDouble(splitComma_3[0]);
+        Double pitch_3 = Double.parseDouble(splitComma_3[1]);
+        Double yaw_3 = Double.parseDouble(splitComma_3[2]);
+
+        String ID4 = sepValue.getString("4.0");
+        String[] splitComma_4 = ID1.split(",");
+        Double roll_4 = Double.parseDouble(splitComma_4[0]);
+        Double pitch_4 = Double.parseDouble(splitComma_4[1]);
+        Double yaw_4 = Double.parseDouble(splitComma_4[2]);
     }
+
 }
