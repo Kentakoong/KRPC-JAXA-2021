@@ -34,183 +34,41 @@ import gov.nasa.arc.astrobee.types.Quaternion;
  */
 
 public class YourService extends KiboRpcService {
-    final String QRlog = "QR_STATUS";
-    final String ARlog = "AR_STATUS";
-    int QRLC = 0;
     final int LM = 5;
-    final int AR_LM = 5;
     com.google.zxing.Result qr = null;
-    String QR_str = null;
-    String pattern_raw = null;
-    String pos_x_raw = null;
-    String pos_y_raw = null;
-    String pos_z_raw = null;
     int pattern;
     double euler_x;
     double euler_y;
     double euler_z;
+    double pos_x;
+    double pos_y;
+    double pos_z;
     @Override
     protected void runPlan1() {
+
         api.startMission();
 
         moveToWrapper(11.3277, -9.8422, 4.8726, 0, 0, -0.707, 0.707);
 
-        do{
-            detectQR();
-            QRLC++;
-        }
-        while (qr == null && QRLC < LM);
-
-        QR_str = String.valueOf(qr);
-
-        Log.i(QRlog, QR_str);
-        api.sendDiscoveredQR(QR_str);
-
-        try{
-            JSONObject split = new JSONObject(QR_str);
-            pattern_raw = split.getString("p");
-            pos_x_raw = split.getString("x");
-            pos_y_raw = split.getString("y");
-            pos_z_raw = split.getString("z");
-        } catch (JSONException e) {
-            Log.e(QRlog, "QR_NOT_CONVERTED");
-        }
-        pattern = Integer.parseInt(pattern_raw);
-        Log.i(QRlog,"PATTERN : " + pattern);
-        double pos_x = Double.parseDouble(pos_x_raw);
-        Log.i(QRlog,"POS_X : " + pos_x);
-        double pos_y = Double.parseDouble(pos_y_raw);
-        Log.i(QRlog,"POS_Y : " + pos_y);
-        double pos_z = Double.parseDouble(pos_z_raw);
-        Log.i(QRlog,"POS_Z : " + pos_z);
+        getQR();
 
         if (pattern == 1) {
-            moveToWrapper(pos_x, pos_y, pos_z - 0.46, 0, 0, -0.707, 0.707);
-            moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            Log.i("STATUS : ", "MOVED TO A_prime");
-            try {
-                detectAR();
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e(ARlog,"AR_FAILED");
-            }
-            moveToEuler(pos_x, pos_y, pos_z, euler_x, euler_y, euler_z);
-            api.laserControl(true);
-            api.takeSnapshot();
-            api.laserControl(false);
-            moveToWrapper(pos_x, pos_y, pos_z-0.1, 0, 0, -0.707, 0.707);
-            moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
-            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+            pattern1();
         }else if (pattern == 2) {
-            moveToWrapper(pos_x, pos_y, pos_z - 0.46, 0, 0, -0.707, 0.707);
-            moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            Log.i("STATUS : ", "MOVED TO A_prime");
-            try {
-                detectAR();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            api.laserControl(true);
-            api.takeSnapshot();
-            api.laserControl(false);
-            moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
-            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+            pattern2();
         } else if (pattern == 3) {
-            moveToWrapper(pos_x, pos_y, pos_z - 0.41, 0, 0, -0.707, 0.707);
-            moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            Log.i("STATUS : ", "MOVED TO A_prime");
-            try {
-                detectAR();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            api.laserControl(true);
-            api.takeSnapshot();
-            api.laserControl(false);
-            moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
-            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+            pattern3();
         } else if (pattern == 4) {
-            moveToWrapper(pos_x, pos_y, pos_z - 0.45, 0, 0, -0.707, 0.707);
-            moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            Log.i("STATUS : ", "MOVED TO A_prime");
-            try {
-                detectAR();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            api.laserControl(true);
-            api.takeSnapshot();
-            api.laserControl(false);
-            moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
-            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+            pattern4();
         } else if (pattern == 5) {
-            double x_kiz_left = pos_x - 0.35;
-            moveToWrapper(x_kiz_left, pos_y, pos_z - 0.68, 0, 0, -0.707, 0.707);
-            moveToWrapper(x_kiz_left, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            Log.i("STATUS : ", "MOVED TO A_prime");
-            try {
-                detectAR();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            api.laserControl(true);
-            api.takeSnapshot();
-            api.laserControl(false);
-            moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
-            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+            pattern5();
         } else if (pattern == 6) {
-            double x_kiz_left = pos_x - 0.35;
-            moveToWrapper(x_kiz_left, pos_y, pos_z - 0.64, 0, 0, -0.707, 0.707);
-            moveToWrapper(x_kiz_left, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            Log.i("STATUS : ", "MOVED TO A_prime");
-            try {
-                detectAR();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            api.laserControl(true);
-            api.takeSnapshot();
-            api.laserControl(false);
-            moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
-            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+            pattern6();
         } else if (pattern == 7) {
-            double x_kiz_right = pos_x + 0.22;
-            moveToWrapper(pos_x + 0.22, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
-            moveToWrapper(x_kiz_right, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
-            moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            Log.i("STATUS : ", "MOVED TO A_prime");
-            try {
-                detectAR();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            api.laserControl(true);
-            api.takeSnapshot();
-            api.laserControl(false);
-            moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            moveToWrapper(x_kiz_right, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
-            moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
-            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+            pattern7();
         } else if (pattern == 8) {
-            moveToWrapper(pos_x, pos_y, pos_z - 0.43, 0, 0, -0.707, 0.707);
-            moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
-            Log.i("STATUS : ", "MOVED TO A_prime");
-            try {
-                detectAR();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            api.laserControl(true);
-            api.takeSnapshot();
-            api.laserControl(false);
-            moveToWrapper(pos_x, pos_y, pos_z-0.4, 0, 0, -0.707, 0.707);
-            moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
-            moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+            pattern8();
         }
-
 
         api.reportMissionCompletion();
     }
@@ -291,6 +149,7 @@ public class YourService extends KiboRpcService {
     }
 
     private void detectQR(){
+        final String QRlog = "QR_STATUS";
         Bitmap bMap = api.getBitmapNavCam();
         Bitmap c_bMap = Bitmap.createBitmap(bMap,510,550,220,220);
         int[] size_bMap = new int[c_bMap.getWidth()*c_bMap.getHeight()];
@@ -302,10 +161,11 @@ public class YourService extends KiboRpcService {
         }catch (Exception e){
             Log.e(QRlog, "QR_NOT_DETECTED");
         }
-        assert qr != null;
     }
 
     private void detectAR() throws JSONException {
+        final String ARlog = "AR_STATUS";
+        final int AR_LM = 5;
         int IDLC = 0;
         Mat img = api.getMatNavCam();
         Dictionary dict = Aruco.getPredefinedDictionary(Aruco.DICT_5X5_250);
@@ -313,7 +173,6 @@ public class YourService extends KiboRpcService {
         Mat ids = new Mat();
         DetectorParameters detectparam = DetectorParameters.create();
         List<Mat> reject = new ArrayList<>();
-        float markerLength = 0.05f;
         Mat rVecs = new Mat();
         Mat tVecs = new Mat();
         JSONObject jsonRPY = new JSONObject();
@@ -337,23 +196,19 @@ public class YourService extends KiboRpcService {
             Aruco.detectMarkers(img, dict, corners, ids, detectparam, reject);
             IDLC++;
         }
-        Log.i(ARlog,String.valueOf(ids.get(0, 0)[0]));
-        Log.i(ARlog,String.valueOf(ids.get(1, 0)[0]));
-        Log.i(ARlog,String.valueOf(ids.get(2, 0)[0]));
-        Log.i(ARlog,String.valueOf(ids.get(3, 0)[0]));
         Log.i(ARlog, "AR_DETECTED");
         for (int i = 0; i < 4; ++i) {
-        Aruco.estimatePoseSingleMarkers(corners, 0.05f, cameraMatrix, distCoeffs, rVecs, tVecs);
-        Mat rot = new Mat();
-        Mat mtxR = new Mat();
-        Mat mtxQ = new Mat();
-        Calib3d.Rodrigues(rVecs.row(i), rot);
-        double[] eulerAngle = Calib3d.RQDecomp3x3(rot, mtxR, mtxQ);
-        float pitch = (float) eulerAngle[0];
-        float yaw = (float) -eulerAngle[1];
-        float roll = (float) -eulerAngle[2];
-        jsonRPY.put(String.valueOf(ids.get(i, 0)[0]), yaw + "," + pitch + "," + roll);
-        Log.i(ARlog, String.valueOf(jsonRPY));
+            Aruco.estimatePoseSingleMarkers(corners, 0.05f, cameraMatrix, distCoeffs, rVecs, tVecs);
+            Mat rot = new Mat();
+            Mat mtxR = new Mat();
+            Mat mtxQ = new Mat();
+            Calib3d.Rodrigues(rVecs.row(i), rot);
+            double[] eulerAngle = Calib3d.RQDecomp3x3(rot, mtxR, mtxQ);
+            float pitch = (float) eulerAngle[0];
+            float yaw = (float) -eulerAngle[1];
+            float roll = (float) -eulerAngle[2];
+            jsonRPY.put(String.valueOf(ids.get(i, 0)[0]), yaw + "," + pitch + "," + roll);
+            Log.i(ARlog, String.valueOf(jsonRPY));
         }
         JSONObject sepValue = new JSONObject(String.valueOf(jsonRPY));
 
@@ -381,17 +236,183 @@ public class YourService extends KiboRpcService {
         double pitch_4 = Double.parseDouble(splitComma_4[1]);
         double yaw_4 = Double.parseDouble(splitComma_4[2]);
 
-        if(pattern == 1){
-            if(-Math.abs(pitch_4) <= -170){
-                euler_x = -Math.abs(roll_4);
-                euler_y = -Math.abs(pitch_4);
-                euler_z = Math.abs(yaw_4);
-            }
-            else{
-                euler_x = -Math.abs(roll_1);
-                euler_y = -Math.abs(pitch_1);
-                euler_z = Math.abs(yaw_1);
-            }
+        // if(-Math.abs(pitch_4) <= -170){
+        double rollcalc = (roll_4+roll_2)/2;
+        double pitchcalc = (pitch_4+pitch_2)/2;
+        double yawcalc = (yaw_4+yaw_2)/2;
+
+        Log.i(ARlog,"r-p-y : "+rollcalc+","+pitchcalc+","+yawcalc);
+
+        euler_x = -Math.abs(rollcalc);
+        euler_y = -Math.abs(pitchcalc);
+        euler_z = Math.abs(yawcalc);
+       /* }else {
+            double rollcalc = (roll_3 + roll_1) / 2;
+            double pitchcalc = (pitch_3 + pitch_1) / 2;
+            double yawcalc = (yaw_3 + yaw_1) / 2;
+
+            Log.i(ARlog, "r-p-y : " + rollcalc + "," + pitchcalc + "," + yawcalc);
+            euler_x = -Math.abs(rollcalc);
+            euler_y = -Math.abs(pitchcalc);
+            euler_z = Math.abs(yawcalc);
+        } */
+    }
+
+    private void Sleep(){
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Log.e("SLEEP", "SLEEP FAILED");
         }
     }
+
+    private void getAR(){
+        final String ARlog = "AR_STATUS";
+        try {
+            detectAR();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e(ARlog,"AR_FAILED");
+        }
+    }
+
+    private void snapshot(){
+        api.laserControl(true);
+        api.takeSnapshot();
+        api.laserControl(false);
+    }
+
+    private void getQR(){
+        final String QRlog = "QR_STATUS";
+        int QRLC = 0;
+        String pattern_raw = null;
+        String pos_x_raw = null;
+        String pos_y_raw = null;
+        String pos_z_raw = null;
+        String QR_str = null;
+
+        do{
+            detectQR();
+            QRLC++;
+        }
+        while (qr == null && QRLC < LM);
+
+        QR_str = String.valueOf(qr);
+
+        Log.i(QRlog, QR_str);
+        api.sendDiscoveredQR(QR_str);
+        try{
+            JSONObject split = new JSONObject(QR_str);
+            pattern_raw = split.getString("p");
+            pos_x_raw = split.getString("x");
+            pos_y_raw = split.getString("y");
+            pos_z_raw = split.getString("z");
+        } catch (JSONException e) {
+            Log.e(QRlog, "QR_NOT_CONVERTED");
+        }
+        pattern = Integer.parseInt(pattern_raw);
+        Log.i(QRlog,"PATTERN : " + pattern);
+        pos_x = Double.parseDouble(pos_x_raw);
+        Log.i(QRlog,"POS_X : " + pos_x);
+        pos_y = Double.parseDouble(pos_y_raw);
+        Log.i(QRlog,"POS_Y : " + pos_y);
+        pos_z = Double.parseDouble(pos_z_raw);
+        Log.i(QRlog,"POS_Z : " + pos_z);
+    }
+
+    private void pattern1(){
+        moveToWrapper(pos_x, pos_y, pos_z - 0.46, 0, 0, -0.707, 0.707);
+        moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
+        Sleep();
+        getAR();
+        moveToEuler(pos_x, pos_y, pos_z, euler_x-50, euler_y, euler_z+45);
+        snapshot();
+        moveToWrapper(pos_x, pos_y, pos_z-0.1, 0, 0, -0.707, 0.707);
+        moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
+        moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+    }
+
+    private void pattern2(){
+        moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
+        Sleep();
+        getAR();
+        moveToEuler(pos_x, pos_y, pos_z, euler_x-5, euler_y, euler_z+50);
+        snapshot();
+        moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
+        moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+    }
+
+    private void pattern3(){
+        moveToWrapper(pos_x, pos_y, pos_z - 0.41, 0, 0, -0.707, 0.707);
+        moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
+        Sleep();
+        getAR();
+        moveToEuler(pos_x, pos_y, pos_z, euler_x+5, euler_y, euler_z+55);
+        snapshot();
+        moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
+        moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+    }
+
+    private void pattern4(){
+        moveToWrapper(pos_x, pos_y, pos_z - 0.45, 0, 0, -0.707, 0.707);
+        moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
+        Sleep();
+        getAR();
+        moveToEuler(pos_x, pos_y, pos_z, euler_x, euler_y, euler_z);
+        snapshot();
+        moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
+        moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+    }
+
+    private void pattern5(){
+        double x_kiz_left = pos_x - 0.35;
+        moveToWrapper(x_kiz_left, pos_y, pos_z - 0.68, 0, 0, -0.707, 0.707);
+        moveToWrapper(x_kiz_left, pos_y, pos_z, 0, 0, -0.707, 0.707);
+        moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
+        Sleep();
+        getAR();
+        snapshot();
+        moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
+        moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+    }
+
+    private void pattern6(){
+        double x_kiz_left = pos_x - 0.35;
+        moveToWrapper(x_kiz_left, pos_y, pos_z - 0.64, 0, 0, -0.707, 0.707);
+        moveToWrapper(x_kiz_left, pos_y, pos_z, 0, 0, -0.707, 0.707);
+        moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
+        Sleep();
+        getAR();
+        snapshot();
+        moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
+        moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+    }
+
+    private void pattern7(){
+        double x_kiz_right = pos_x + 0.22;
+        moveToWrapper(pos_x + 0.22, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
+        moveToWrapper(x_kiz_right, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
+        moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
+        moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
+        Sleep();
+        getAR();
+        snapshot();
+        moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
+        moveToWrapper(x_kiz_right, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
+        moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
+        moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+    }
+
+    private void pattern8(){
+        moveToWrapper(pos_x, pos_y, pos_z - 0.43, 0, 0, -0.707, 0.707);
+        moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
+        Sleep();
+        getAR();
+        snapshot();
+        moveToWrapper(pos_x, pos_y, pos_z-0.4, 0, 0, -0.707, 0.707);
+        moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
+        moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
+    }
+
 }
