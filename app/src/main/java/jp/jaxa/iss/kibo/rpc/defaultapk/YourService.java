@@ -12,7 +12,6 @@ import com.google.zxing.qrcode.QRCodeReader;
 
 import jp.jaxa.iss.kibo.rpc.api.KiboRpcService;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.opencv.aruco.Aruco;
@@ -178,13 +177,13 @@ public class YourService extends KiboRpcService {
         JSONObject jsonRPY = new JSONObject();
         Mat cameraMatrix = new Mat(3, 3, CvType.CV_32FC1);
         Mat distCoeffs = new Mat(1, 5, CvType.CV_32FC1);
-        final double cMT_value[] =
+        final double[] cMT_value =
                 {
                         567.229305, 0.0, 659.077221,
                         0.0, 574.192915, 517.007571,
                         0.0, 0.0, 1.0
                 };
-        final double dC_value[] = {-0.216247, 0.03875, -0.010157, 0.001969, 0.0};
+        final double[] dC_value = {-0.216247, 0.03875, -0.010157, 0.001969, 0.0};
         cameraMatrix.put(0, 0, cMT_value);
         distCoeffs.put(0, 0, dC_value);
         detectparam.set_minMarkerDistanceRate(0.05f);
@@ -219,34 +218,34 @@ public class YourService extends KiboRpcService {
         double roll_1 = Double.parseDouble(splitComma_1[2]);
 
         String ID2 = sepValue.getString("2.0");
-        String[] splitComma_2 = ID1.split(",");
+        String[] splitComma_2 = ID2.split(",");
         double roll_2 = Double.parseDouble(splitComma_2[0]);
         double pitch_2 = Double.parseDouble(splitComma_2[1]);
         double yaw_2 = Double.parseDouble(splitComma_2[2]);
 
         String ID3 = sepValue.getString("3.0");
-        String[] splitComma_3 = ID1.split(",");
+        String[] splitComma_3 = ID3.split(",");
         double roll_3 = Double.parseDouble(splitComma_3[0]);
         double pitch_3 = Double.parseDouble(splitComma_3[1]);
         double yaw_3 = Double.parseDouble(splitComma_3[2]);
 
         String ID4 = sepValue.getString("4.0");
-        String[] splitComma_4 = ID1.split(",");
+        String[] splitComma_4 = ID4.split(",");
         double roll_4 = Double.parseDouble(splitComma_4[0]);
         double pitch_4 = Double.parseDouble(splitComma_4[1]);
         double yaw_4 = Double.parseDouble(splitComma_4[2]);
 
-        // if(-Math.abs(pitch_4) <= -170){
-        double rollcalc = (roll_4+roll_2)/2;
-        double pitchcalc = (pitch_4+pitch_2)/2;
-        double yawcalc = (yaw_4+yaw_2)/2;
+        if(-Math.abs(pitch_4) <= -170){
+            double rollcalc = (roll_4+roll_2)/2;
+            double pitchcalc = (pitch_4+pitch_2)/2;
+            double yawcalc = (yaw_4+yaw_2)/2;
 
-        Log.i(ARlog,"r-p-y : "+rollcalc+","+pitchcalc+","+yawcalc);
-
-        euler_x = -Math.abs(rollcalc);
-        euler_y = -Math.abs(pitchcalc);
-        euler_z = Math.abs(yawcalc);
-       /* }else {
+            Log.i(ARlog,"r-p-y : "+rollcalc+","+pitchcalc+","+yawcalc);
+            euler_x = -Math.abs(rollcalc);
+            euler_y = -Math.abs(pitchcalc);
+            euler_z = Math.abs(yawcalc);
+            Log.i(ARlog,"pitch 4 and 2");
+        }else {
             double rollcalc = (roll_3 + roll_1) / 2;
             double pitchcalc = (pitch_3 + pitch_1) / 2;
             double yawcalc = (yaw_3 + yaw_1) / 2;
@@ -255,13 +254,16 @@ public class YourService extends KiboRpcService {
             euler_x = -Math.abs(rollcalc);
             euler_y = -Math.abs(pitchcalc);
             euler_z = Math.abs(yawcalc);
-        } */
+            Log.i(ARlog,"pitch 3 and 1");
+        }
     }
 
     private void Sleep(){
         try {
-            Thread.sleep(10000);
+            Thread.currentThread();
+            Thread.sleep(13000);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             e.printStackTrace();
             Log.e("SLEEP", "SLEEP FAILED");
         }
@@ -290,7 +292,7 @@ public class YourService extends KiboRpcService {
         String pos_x_raw = null;
         String pos_y_raw = null;
         String pos_z_raw = null;
-        String QR_str = null;
+        String QR_str;
 
         do{
             detectQR();
@@ -322,11 +324,11 @@ public class YourService extends KiboRpcService {
     }
 
     private void pattern1(){
-        moveToWrapper(pos_x, pos_y, pos_z - 0.46, 0, 0, -0.707, 0.707);
+        moveToWrapper(pos_x, pos_y, pos_z - 0.39, 0, 0, -0.707, 0.707);
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x-50, euler_y, euler_z+45);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x-53, euler_y, euler_z+43);
         snapshot();
         moveToWrapper(pos_x, pos_y, pos_z-0.1, 0, 0, -0.707, 0.707);
         moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
@@ -337,7 +339,7 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x-5, euler_y, euler_z+50);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x-2, euler_y, euler_z+49);
         snapshot();
         moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
@@ -348,7 +350,7 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x+5, euler_y, euler_z+55);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x, euler_y, euler_z+40);
         snapshot();
         moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
@@ -359,7 +361,7 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x, euler_y, euler_z);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x+45, euler_y, euler_z+50);
         snapshot();
         moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
@@ -372,6 +374,7 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
+        moveToEuler(pos_x, pos_y, pos_z, euler_x+45, euler_y, euler_z+3);
         snapshot();
         moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
@@ -384,19 +387,20 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
+        moveToEuler(pos_x, pos_y, pos_z, euler_x+7, euler_y, euler_z-5);
         snapshot();
         moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
     }
 
     private void pattern7(){
-        double x_kiz_right = pos_x + 0.22;
-        moveToWrapper(pos_x + 0.22, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
-        moveToWrapper(x_kiz_right, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
+        double x_kiz_right = pos_x + 0.23;
+        moveToWrapper(x_kiz_right, pos_y, pos_z - 0.75, 0, 0, -0.707, 0.707);
         moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
+        moveToEuler(pos_x, pos_y, pos_z, euler_x-36, euler_y, euler_z-1);
         snapshot();
         moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
         moveToWrapper(x_kiz_right, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
@@ -409,10 +413,10 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
+        moveToEuler(pos_x, pos_y, pos_z, euler_x, euler_y, euler_z);
         snapshot();
         moveToWrapper(pos_x, pos_y, pos_z-0.4, 0, 0, -0.707, 0.707);
         moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
     }
-
 }
