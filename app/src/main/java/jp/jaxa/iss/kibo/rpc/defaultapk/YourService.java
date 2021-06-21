@@ -235,7 +235,27 @@ public class YourService extends KiboRpcService {
         double pitch_4 = Double.parseDouble(splitComma_4[1]);
         double yaw_4 = Double.parseDouble(splitComma_4[2]);
 
-        if(-Math.abs(pitch_4) <= -170){
+        if(Math.abs(pitch_1) >= -165){
+            Log.i(ARlog,String.valueOf(pitch_1));
+            pitch_1 = -Math.abs(pitch_1);
+            Log.i(ARlog,"don't give me class c astrobee im crying TT");
+            Log.i(ARlog,String.valueOf(pitch_1));
+        }
+
+        if(Math.abs(pitch_2) >= -165){
+            Log.i(ARlog,String.valueOf(pitch_2));
+            pitch_2 = -Math.abs(pitch_2);
+            Log.i(ARlog,"don't give me class c astrobee im crying TT");
+            Log.i(ARlog,String.valueOf(pitch_2));
+        }
+        if(Math.abs(pitch_3) >= -165){
+            Log.i(ARlog,String.valueOf(pitch_3));
+            pitch_3 = -Math.abs(pitch_3);
+            Log.i(ARlog,"don't give me class c astrobee im crying TT");
+            Log.i(ARlog,String.valueOf(pitch_3));
+        }
+
+        if(-Math.abs(pitch_4) <= -165){
             double rollcalc = (roll_4+roll_2)/2;
             double pitchcalc = (pitch_4+pitch_2)/2;
             double yawcalc = (yaw_4+yaw_2)/2;
@@ -328,7 +348,7 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x-53, euler_y, euler_z+43);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x-52, euler_y, euler_z+43);
         snapshot();
         moveToWrapper(pos_x, pos_y, pos_z-0.1, 0, 0, -0.707, 0.707);
         moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
@@ -350,7 +370,7 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x, euler_y, euler_z+40);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x, euler_y, euler_z+45); // fix from z 43
         snapshot();
         moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
@@ -361,7 +381,7 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x+45, euler_y, euler_z+50);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x+41, euler_y, euler_z+48);
         snapshot();
         moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
@@ -374,7 +394,7 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x+45, euler_y, euler_z+3);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x+42, euler_y, euler_z+1);
         snapshot();
         moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
@@ -387,7 +407,7 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x+7, euler_y, euler_z-5);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x+6, euler_y, euler_z-2);
         snapshot();
         moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
@@ -400,7 +420,7 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x-36, euler_y, euler_z-1);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x-35, euler_y, euler_z);
         snapshot();
         moveToWrapper(x_kiz_right, pos_y, pos_z, 0, 0, -0.707, 0.707);
         moveToWrapper(x_kiz_right, pos_y, pos_z - 0.76, 0, 0, -0.707, 0.707);
@@ -413,10 +433,11 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x, euler_y, euler_z);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x-28, euler_y, euler_z+45);
         snapshot();
         moveToWrapper(pos_x, pos_y, pos_z-0.4, 0, 0, -0.707, 0.707);
         moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
     }
 }
+
