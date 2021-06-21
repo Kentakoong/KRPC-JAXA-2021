@@ -407,7 +407,7 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x+6, euler_y, euler_z-2);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x+7, euler_y, euler_z-5);
         snapshot();
         moveToWrapper(10.6,pos_y,pos_z,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
