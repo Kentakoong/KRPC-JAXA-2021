@@ -254,8 +254,15 @@ public class YourService extends KiboRpcService {
             Log.i(ARlog,"don't give me class c astrobee im crying TT");
             Log.i(ARlog,String.valueOf(pitch_3));
         }
+        if(Math.abs(pitch_4) >= -165){
+            Log.i(ARlog,String.valueOf(pitch_4));
+            pitch_4 = -Math.abs(pitch_4);
+            Log.i(ARlog,"don't give me class c astrobee im crying TT");
+            Log.i(ARlog,String.valueOf(pitch_4));
+        }
 
-        if(-Math.abs(pitch_4) <= -165){
+
+        if(Math.abs(pitch_4) >= -165){
             double rollcalc = (roll_4+roll_2)/2;
             double pitchcalc = (pitch_4+pitch_2)/2;
             double yawcalc = (yaw_4+yaw_2)/2;
@@ -381,7 +388,7 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x+41, euler_y, euler_z+48);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x+40, euler_y, euler_z+48);
         snapshot();
         moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
@@ -433,11 +440,10 @@ public class YourService extends KiboRpcService {
         moveToWrapper(pos_x, pos_y, pos_z, 0, 0, -0.707, 0.707);
         Sleep();
         getAR();
-        moveToEuler(pos_x, pos_y, pos_z, euler_x-28, euler_y, euler_z+45);
+        moveToEuler(pos_x, pos_y, pos_z, euler_x-45, euler_y, euler_z+45);
         snapshot();
         moveToWrapper(pos_x, pos_y, pos_z-0.4, 0, 0, -0.707, 0.707);
         moveToWrapper(10.6,pos_y,4.5,0, 0, -0.707, 0.707);
         moveToWrapper(10.6,-8,4.5,0, 0, -0.707, 0.707);
     }
 }
-
