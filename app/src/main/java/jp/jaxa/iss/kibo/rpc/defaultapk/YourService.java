@@ -1,3 +1,12 @@
+//
+//  YourService.java
+//  KRPC-JAXA-2021
+//
+//  Created by Wongkraiwich Chuenchomphu.
+//  Copyright @Kentakoong 2021.
+//  Copyright @IDKJAVA 2021.
+//
+
 package jp.jaxa.iss.kibo.rpc.defaultapk;
 
 import android.graphics.Bitmap;
